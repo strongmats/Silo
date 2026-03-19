@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -35,9 +38,7 @@ jobs:
         run: npm ci
 
       - name: Build Electron app
-        run: npx electron-builder --${{ matrix.platform }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
