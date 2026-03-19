@@ -1,0 +1,46 @@
+{
+  "name": "silo",
+  "version": "1.0.0",
+  "description": "Local .silo File CRM & Network Mapper",
+  "main": "main.js",
+  "author": "Cohen, Strong & Rosenmayer",
+  "license": "MIT",
+  "homepage": "https://github.com/strongmats/Silo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/strongmats/Silo.git"
+  },
+  "scripts": {
+    "start": "ELECTRON_RUN_AS_NODE= electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.silo.app",
+    "productName": "Silo",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app.js",
+      "style.css",
+      "index.html",
+      "config.json",
+      "lib/vis-network.min.js",
+      "assets/**/*"
+    ],
+    "icon": "assets/icon.png",
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "assets/icon.png"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    }
+  }
+}

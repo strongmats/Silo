@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silo — Network & Task Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lib/vis-network.min.js"></script>
+</head>
+<body>
+  <div id="app-bar">
+    <div class="bar-brand">
+      <div class="brand-icon">
+        <img src="assets/brush_stroke.svg" alt="" class="brand-stroke">
+        <img src="assets/barn.svg" alt="Silo" class="brand-barn">
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Silo</span>
+        <span id="project-name" class="project-name-label"></span>
+      </div>
+    </div>
+    <nav id="tab-bar">
+      <button class="tab-btn active" data-tab="entities">Entities</button>
+      <button class="tab-btn" data-tab="tasks">Tasks</button>
+      <div class="tab-separator"></div>
+      <button class="tab-btn" data-tab="map">Map</button>
+      <button class="tab-btn" data-tab="timeline">Timeline</button>
+    </nav>
+    <div class="bar-spacer"></div>
+  </div>
+
+  <main id="tab-content">
+    <!-- Entities Panel -->
+    <section id="panel-entities" class="panel active">
+      <div class="panel-toolbar">
+        <button class="btn btn-primary btn-add" data-add="entity">Add Entity</button>
+        <input type="text" class="search-input" placeholder="Search entities..." data-search="entities">
+        <select class="filter-select" data-filter="entities-type"><option value="">All Types</option></select>
+        <select class="filter-select" data-filter="entities-status"><option value="">All Statuses</option></select>
+      </div>
+      <div class="table-container" id="table-entities"></div>
+    </section>
+
+    <!-- Tasks Panel -->
+    <section id="panel-tasks" class="panel">
+      <div class="panel-toolbar">
+        <button class="btn btn-primary btn-add" data-add="task">Add Task</button>
+        <input type="text" class="search-input" placeholder="Search tasks..." data-search="tasks">
+        <select class="filter-select" data-filter="tasks-type"><option value="">All Types</option></select>
+        <select class="filter-select" data-filter="tasks-status"><option value="">All Statuses</option></select>
+      </div>
+      <div class="table-container" id="table-tasks"></div>
+    </section>
+
+    <!-- Map (merged network + task map) -->
+    <section id="panel-map" class="panel">
+      <div class="panel-toolbar">
+        <span class="viz-hint">Entities (circles) & Tasks (boxes) — click a node to view. Red tasks = deadline within 7 days.</span>
+      </div>
+      <div id="map-container" class="viz-container"></div>
+    </section>
+
+    <!-- Timeline -->
+    <section id="panel-timeline" class="panel">
+      <div class="panel-toolbar">
+        <button class="btn btn-small" id="btn-timeline-today">Jump to Today</button>
+        <span class="viz-hint">Task deadlines</span>
+      </div>
+      <div id="timeline-container" class="timeline-container"></div>
+    </section>
+  </main>
+
+  <!-- Modal for create/edit forms -->
+  <dialog id="modal-form">
+    <div class="modal-header">
+      <h2 id="modal-title">Add Entity</h2>
+      <button class="btn-close" id="modal-close">&times;</button>
+    </div>
+    <form id="record-form">
+      <div id="form-fields"></div>
+      <div class="form-actions" id="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- View-only modal -->
+  <dialog id="modal-view">
+    <div class="modal-header">
+      <h2 id="view-title">View Entity</h2>
+      <button class="btn-close" id="view-close">&times;</button>
+    </div>
+    <div id="view-fields" class="view-fields"></div>
+    <div class="form-actions view-actions">
+      <button class="btn btn-primary" id="btn-view-edit">Edit</button>
+      <button class="btn btn-secondary" id="btn-view-close">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Confirm delete dialog -->
+  <dialog id="modal-confirm">
+    <p>Are you sure you want to delete this record?</p>
+    <div class="form-actions">
+      <button class="btn btn-danger" id="btn-confirm-yes">Delete</button>
+      <button class="btn btn-secondary" id="btn-confirm-no">Cancel</button>
+    </div>
+  </dialog>
+
+  <!-- Customer Segment Manager dialog -->
+  <dialog id="modal-segments">
+    <div class="modal-header">
+      <h2>Manage Customer Segments</h2>
+      <button class="btn-close" id="segments-close">&times;</button>
+    </div>
+    <div id="segments-list" class="segments-list"></div>
+    <div class="segments-add-row">
+      <input type="text" id="segment-new-name" placeholder="Segment name...">
+      <input type="color" id="segment-new-color" value="#3b82f6">
+      <button class="btn btn-primary btn-small" id="btn-segment-add">Add</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" id="btn-segments-done">Done</button>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

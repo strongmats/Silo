@@ -1,0 +1,29 @@
+{
+  "entityTypes": [
+    "person",
+    "organization",
+    "program",
+    "investor",
+    "advisor"
+  ],
+  "taskTypes": [
+    "funding_application",
+    "deadline",
+    "milestone",
+    "followup",
+    "deliverable"
+  ],
+  "entityStatuses": [
+    "active",
+    "inactive",
+    "prospective"
+  ],
+  "taskStatuses": [
+    "not_started",
+    "in_progress",
+    "blocked",
+    "completed",
+    "missed"
+  ],
+  "customerSegments": []
+}

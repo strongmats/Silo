@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+*.AppImage
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.snap
+
+# Electron-builder cache
+.electron-builder-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Claude Code
+.claude/
