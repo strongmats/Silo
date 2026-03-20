@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('silo', {
   openFile: () => ipcRenderer.invoke('file:open'),
   saveFile: (data) => ipcRenderer.invoke('file:save', data),
   saveAsFile: (data) => ipcRenderer.invoke('file:save-as', data),
+  exportExcel: (data) => ipcRenderer.invoke('file:export-excel', data),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   onMenuAction: (callback) => ipcRenderer.on('menu-action', (event, action) => callback(action)),
 });
