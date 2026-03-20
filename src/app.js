@@ -206,6 +206,20 @@ async function doSaveAs() {
   }
 }
 
+async function doExportExcel() {
+  try {
+    const result = await window.silo.exportExcel({
+      suggestedName: (AppState.fileName || 'Silo-Export') + '.xlsx',
+      entities: AppState.entities,
+      tasks: AppState.tasks,
+    });
+    if (result.cancelled) return;
+    if (result.error) throw new Error(result.error);
+  } catch (err) {
+    alert('Export error: ' + err.message);
+  }
+}
+
 // === Helpers ===
 function generateId(prefix) {
   return `${prefix}_${Date.now()}`;
@@ -959,6 +973,7 @@ function init() {
     else if (action === 'open') doOpen();
     else if (action === 'save') doSave();
     else if (action === 'save-as') doSaveAs();
+    else if (action === 'export-excel') doExportExcel();
   });
 
   // Tab switching

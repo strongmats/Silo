@@ -2,6 +2,11 @@ const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
 const { execFile } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const XLSX = require('xlsx');
+
+if (process.platform === 'linux') {
+  app.setDesktopName('silo.desktop');
+}
 
 let mainWindow;
 
@@ -48,6 +53,12 @@ function buildMenu() {
           label: 'Save As...',
           accelerator: 'CmdOrCtrl+Shift+S',
           click: () => mainWindow.webContents.send('menu-action', 'save-as'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Export to Excel...',
+          accelerator: 'CmdOrCtrl+E',
+          click: () => mainWindow.webContents.send('menu-action', 'export-excel'),
         },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' },
@@ -119,6 +130,29 @@ ipcMain.handle('file:save-as', async (event, { suggestedName, data }) => {
     fs.mkdirSync(path.dirname(finalPath), { recursive: true });
     fs.writeFileSync(finalPath, JSON.stringify(data, null, 2), 'utf-8');
     return { ok: true, path: finalPath };
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+ipcMain.handle('file:export-excel', async (event, { suggestedName, entities, tasks }) => {
+  const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+    title: 'Export to Excel',
+    defaultPath: suggestedName || 'Silo-Export.xlsx',
+    filters: [
+      { name: 'Excel Workbook', extensions: ['xlsx'] },
+    ],
+  });
+  if (canceled || !filePath) return { cancelled: true };
+
+  try {
+    const wb = XLSX.utils.book_new();
+    const entitiesWs = XLSX.utils.json_to_sheet(entities || []);
+    const tasksWs = XLSX.utils.json_to_sheet(tasks || []);
+    XLSX.utils.book_append_sheet(wb, entitiesWs, 'Entities');
+    XLSX.utils.book_append_sheet(wb, tasksWs, 'Tasks');
+    XLSX.writeFile(wb, filePath);
+    return { ok: true };
   } catch (err) {
     return { error: err.message };
   }
