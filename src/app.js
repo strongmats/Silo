@@ -398,7 +398,7 @@ function renderTable(collection, schemaKey, containerId) {
   data.forEach(row => {
     const url = row.url || '';
     html += `<tr class="data-row" data-schema="${schemaKey}" data-id="${row.id}" ${url ? 'data-url="' + url.replace(/"/g, '&quot;') + '"' : ''}>`;
-    const urlBtn = url ? `<button class="btn-icon" title="Open URL" onclick="event.stopPropagation(); window.silo.openExternal('${url.replace(/'/g, "\\'")}')">${SVG_ICONS.arrowSquareIn}</button>` : '';
+    const urlBtn = url ? `<button class="btn-icon" title="Open URL" onclick="event.stopPropagation(); window.silo.openExternal('${url.replace(/'/g, "\\'")}')">${SVG_ICONS.arrowSquareIn}</button>` : `<button class="btn-icon" style="visibility:hidden">${SVG_ICONS.arrowSquareIn}</button>`;
     html += `<td class="col-actions"><div class="row-actions">
       ${urlBtn}
       <button class="btn-icon" title="Edit" onclick="event.stopPropagation(); openEditForm('${schemaKey}', '${row.id}')">${SVG_ICONS.pencil}</button>
@@ -886,10 +886,16 @@ function renderMap() {
       edges.push({ from: e.parent_id, to: e.id, arrows: 'to', color: { color: '#94a3b8' } });
     });
 
+  AppState.entities
+    .filter(e => e.employer_id)
+    .forEach(e => {
+      edges.push({ from: e.employer_id, to: e.id, arrows: 'to', color: { color: '#94a3b8' }, dashes: true });
+    });
+
   AppState.tasks
     .filter(t => t.entity_id)
     .forEach(t => {
-      edges.push({ from: t.entity_id, to: t.id, color: { color: '#c4b5fd' }, arrows: 'to', dashes: true });
+      edges.push({ from: t.entity_id, to: t.id, color: { color: '#c4b5fd' }, arrows: 'to' });
     });
 
   const data = {

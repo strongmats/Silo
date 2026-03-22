@@ -737,7 +737,8 @@ dialog::backdrop {
 .view-row:last-child { border-bottom: none; }
 
 .view-label {
-  min-width: 140px;
+  width: 140px;
+  flex-shrink: 0;
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-gray-600);
