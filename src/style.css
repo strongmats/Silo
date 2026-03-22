@@ -327,9 +327,7 @@ body {
   padding: 6px 8px;
 }
 
-.data-table tbody tr { cursor: default; }
-.data-table tbody tr.has-url { cursor: pointer; }
-.data-table tbody tr.has-url:hover { background: var(--color-primary-light); }
+.data-table tbody tr { cursor: pointer; }
 .data-table tr:hover { background: var(--color-gray-100); }
 .data-table tr:last-child td { border-bottom: none; }
 
@@ -739,7 +737,8 @@ dialog::backdrop {
 .view-row:last-child { border-bottom: none; }
 
 .view-label {
-  min-width: 140px;
+  width: 140px;
+  flex-shrink: 0;
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-gray-600);

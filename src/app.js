@@ -4,7 +4,7 @@
 
 // === SVG Icons (inline for use in tables and vis.js) ===
 const SVG_ICONS = {
-  eye: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"/></svg>',
+  arrowSquareIn: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,136v64a8,8,0,0,1-16,0V155.31L45.66,221.66a8,8,0,0,1-11.32-11.32L100.69,144H56a8,8,0,0,1,0-16h64A8,8,0,0,1,128,136ZM208,32H80A16,16,0,0,0,64,48V96a8,8,0,0,0,16,0V48H208V176H160a8,8,0,0,0,0,16h48a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Z"/></svg>',
   pencil: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"/></svg>',
   trash: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>',
 };
@@ -53,6 +53,7 @@ const SCHEMAS = {
       { key: 'name', label: 'Name', type: 'text', required: true },
       { key: 'type', label: 'Type', type: 'enum', enumKey: 'entityTypes' },
       { key: 'parent_id', label: 'Parent Entity', type: 'ref', refType: 'entities', refLabel: 'name' },
+      { key: 'employer_id', label: 'Associated Organization', type: 'ref', refType: 'entities', refLabel: 'name', refFilter: 'organization' },
       { key: 'email', label: 'Email', type: 'email' },
       { key: 'phone', label: 'Phone', type: 'tel' },
       { key: 'role', label: 'Role / Title', type: 'text' },
@@ -85,7 +86,7 @@ const SCHEMAS = {
 };
 
 const CSV_FIELDS = {
-  entities: ['id', 'name', 'type', 'parent_id', 'email', 'phone', 'role', 'url', 'status', 'customer_segments', 'notes', 'tags', 'created_at', 'updated_at'],
+  entities: ['id', 'name', 'type', 'parent_id', 'employer_id', 'email', 'phone', 'role', 'url', 'status', 'customer_segments', 'notes', 'tags', 'created_at', 'updated_at'],
   tasks: ['id', 'title', 'type', 'entity_id', 'status', 'deadline', 'description', 'url', 'amount', 'customer_segments', 'tags', 'created_at', 'updated_at'],
 };
 
@@ -286,6 +287,21 @@ function populateFilters() {
   fillFilterSelect('[data-filter="entities-status"]', cfg.entityStatuses);
   fillFilterSelect('[data-filter="tasks-type"]', cfg.taskTypes);
   fillFilterSelect('[data-filter="tasks-status"]', cfg.taskStatuses);
+  fillSegmentFilterSelect('[data-filter="entities-segment"]');
+  fillSegmentFilterSelect('[data-filter="tasks-segment"]');
+}
+
+function fillSegmentFilterSelect(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  const segments = AppState.config.customerSegments || [];
+  el.innerHTML = '<option value="">All Segments</option>';
+  segments.forEach(seg => {
+    const o = document.createElement('option');
+    o.value = seg.id;
+    o.textContent = seg.name;
+    el.appendChild(o);
+  });
 }
 
 function fillFilterSelect(selector, options) {
@@ -346,7 +362,11 @@ function renderTable(collection, schemaKey, containerId) {
   document.querySelectorAll(`.filter-select[data-filter^="${collection}-"]`).forEach(sel => {
     if (sel.value) {
       const field = sel.dataset.filter.replace(`${collection}-`, '');
-      data = data.filter(row => row[field] === sel.value);
+      if (field === 'segment') {
+        data = data.filter(row => Array.isArray(row.customer_segments) && row.customer_segments.includes(sel.value));
+      } else {
+        data = data.filter(row => row[field] === sel.value);
+      }
     }
   });
 
@@ -377,16 +397,16 @@ function renderTable(collection, schemaKey, containerId) {
 
   data.forEach(row => {
     const url = row.url || '';
-    const clickable = url ? 'data-url="' + url.replace(/"/g, '&quot;') + '"' : '';
-    html += `<tr class="data-row ${url ? 'has-url' : ''}" data-schema="${schemaKey}" data-id="${row.id}" ${clickable}>`;
+    html += `<tr class="data-row" data-schema="${schemaKey}" data-id="${row.id}" ${url ? 'data-url="' + url.replace(/"/g, '&quot;') + '"' : ''}>`;
+    const urlBtn = url ? `<button class="btn-icon" title="Open URL" onclick="event.stopPropagation(); window.silo.openExternal('${url.replace(/'/g, "\\'")}')">${SVG_ICONS.arrowSquareIn}</button>` : `<button class="btn-icon" style="visibility:hidden">${SVG_ICONS.arrowSquareIn}</button>`;
     html += `<td class="col-actions"><div class="row-actions">
-      <button class="btn-icon" title="View" onclick="event.stopPropagation(); openViewForm('${schemaKey}', '${row.id}')">${SVG_ICONS.eye}</button>
+      ${urlBtn}
       <button class="btn-icon" title="Edit" onclick="event.stopPropagation(); openEditForm('${schemaKey}', '${row.id}')">${SVG_ICONS.pencil}</button>
       <button class="btn-icon" title="Delete" onclick="event.stopPropagation(); confirmDelete('${collection}', '${row.id}')">${SVG_ICONS.trash}</button>
     </div></td>`;
     cols.forEach(col => {
       let val = row[col] || '';
-      if ((col === 'entity_id' || col === 'parent_id') && row[col]) {
+      if ((col === 'entity_id' || col === 'parent_id' || col === 'employer_id') && row[col]) {
         val = getEntityName(row[col]);
       }
       if (col === 'customer_segments') {
@@ -406,14 +426,11 @@ function renderTable(collection, schemaKey, containerId) {
   html += '</tbody></table>';
   container.innerHTML = html;
 
-  // Row click → open URL in Firefox
+  // Row click → open viewer
   container.querySelectorAll('.data-row').forEach(tr => {
     tr.addEventListener('click', (e) => {
       if (e.target.closest('.row-actions')) return;
-      const url = tr.dataset.url;
-      if (url) {
-        window.silo.openExternal(url);
-      }
+      openViewForm(tr.dataset.schema, tr.dataset.id);
     });
   });
 
@@ -619,7 +636,10 @@ function renderRefField(group, field, value) {
   sel.name = field.key;
   sel.innerHTML = `<option value="">— None —</option>`;
 
-  const items = AppState[field.refType] || [];
+  let items = AppState[field.refType] || [];
+  if (field.refFilter) {
+    items = items.filter(item => item.type === field.refFilter);
+  }
   items.forEach(item => {
     sel.innerHTML += `<option value="${item.id}" ${value === item.id ? 'selected' : ''}>${item[field.refLabel]}</option>`;
   });
@@ -787,7 +807,10 @@ function executeDelete() {
 
   if (collection === 'entities') {
     AppState.tasks.forEach(t => { if (t.entity_id === id) t.entity_id = ''; });
-    AppState.entities.forEach(e => { if (e.parent_id === id) e.parent_id = ''; });
+    AppState.entities.forEach(e => {
+      if (e.parent_id === id) e.parent_id = '';
+      if (e.employer_id === id) e.employer_id = '';
+    });
   }
 
   markDirty();
@@ -863,10 +886,16 @@ function renderMap() {
       edges.push({ from: e.parent_id, to: e.id, arrows: 'to', color: { color: '#94a3b8' } });
     });
 
+  AppState.entities
+    .filter(e => e.employer_id)
+    .forEach(e => {
+      edges.push({ from: e.employer_id, to: e.id, arrows: 'to', color: { color: '#94a3b8' }, dashes: true });
+    });
+
   AppState.tasks
     .filter(t => t.entity_id)
     .forEach(t => {
-      edges.push({ from: t.entity_id, to: t.id, color: { color: '#c4b5fd' }, arrows: 'to', dashes: true });
+      edges.push({ from: t.entity_id, to: t.id, color: { color: '#c4b5fd' }, arrows: 'to' });
     });
 
   const data = {
@@ -1064,12 +1093,9 @@ function init() {
     }
   });
 
-  // Unsaved changes warning
-  window.addEventListener('beforeunload', e => {
-    if (AppState.dirty) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
+  // Unsaved changes warning — handled via IPC from main process
+  window.silo.onCloseRequested(() => {
+    return AppState.dirty;
   });
 
   // Initialize empty state
