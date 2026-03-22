@@ -53,7 +53,7 @@ const SCHEMAS = {
       { key: 'name', label: 'Name', type: 'text', required: true },
       { key: 'type', label: 'Type', type: 'enum', enumKey: 'entityTypes' },
       { key: 'parent_id', label: 'Parent Entity', type: 'ref', refType: 'entities', refLabel: 'name' },
-      { key: 'employer_id', label: 'Who They Work For', type: 'ref', refType: 'entities', refLabel: 'name', refFilter: 'organization' },
+      { key: 'employer_id', label: 'Associated Organization', type: 'ref', refType: 'entities', refLabel: 'name', refFilter: 'organization' },
       { key: 'email', label: 'Email', type: 'email' },
       { key: 'phone', label: 'Phone', type: 'tel' },
       { key: 'role', label: 'Role / Title', type: 'text' },
@@ -1087,12 +1087,9 @@ function init() {
     }
   });
 
-  // Unsaved changes warning
-  window.addEventListener('beforeunload', e => {
-    if (AppState.dirty) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
+  // Unsaved changes warning — handled via IPC from main process
+  window.silo.onCloseRequested(() => {
+    return AppState.dirty;
   });
 
   // Initialize empty state

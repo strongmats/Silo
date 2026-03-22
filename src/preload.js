@@ -8,4 +8,8 @@ contextBridge.exposeInMainWorld('silo', {
   exportExcel: (data) => ipcRenderer.invoke('file:export-excel', data),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   onMenuAction: (callback) => ipcRenderer.on('menu-action', (event, action) => callback(action)),
+  onCloseRequested: (callback) => ipcRenderer.on('check-dirty', () => {
+    const isDirty = callback();
+    ipcRenderer.send('check-dirty-reply', isDirty);
+  }),
 });

@@ -24,6 +24,36 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   buildMenu();
+
+  let forceClose = false;
+
+  mainWindow.on('close', (e) => {
+    if (forceClose) return;
+
+    e.preventDefault();
+    mainWindow.webContents.send('check-dirty');
+
+    ipcMain.once('check-dirty-reply', (event, isDirty) => {
+      if (!isDirty) {
+        forceClose = true;
+        mainWindow.close();
+        return;
+      }
+
+      const choice = dialog.showMessageBoxSync(mainWindow, {
+        type: 'warning',
+        buttons: ['Quit Without Saving', 'Cancel'],
+        defaultId: 1,
+        title: 'Unsaved Changes',
+        message: 'You have unsaved changes. Are you sure you want to quit?',
+      });
+
+      if (choice === 0) {
+        forceClose = true;
+        mainWindow.close();
+      }
+    });
+  });
 }
 
 function buildMenu() {
